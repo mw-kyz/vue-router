@@ -29,8 +29,8 @@ export default class VueRouter {
   apps: Array<any>
   ready: boolean
   readyCbs: Array<Function>
-  options: RouterOptions
-  mode: string
+  options: RouterOptions // 路由配置
+  mode: string // 导航模式，hash模式和history模式
   history: HashHistory | HTML5History | AbstractHistory
   matcher: Matcher
   fallback: boolean
@@ -48,16 +48,18 @@ export default class VueRouter {
     this.matcher = createMatcher(options.routes || [], this)
 
     let mode = options.mode || 'hash'
+    // 如果mode为history模式且不支持h5路由导航且没有在配置里强制设置fallback为true
     this.fallback =
       mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
+      // mode强制改为hash，因为他不支持h5路由导航
       mode = 'hash'
     }
     if (!inBrowser) {
       mode = 'abstract'
     }
     this.mode = mode
-
+    // 根据不同mode模式实例化对应的路由对象
     switch (mode) {
       case 'history':
         this.history = new HTML5History(this, options.base)
@@ -84,6 +86,7 @@ export default class VueRouter {
   }
 
   init (app: any /* Vue component instance */) {
+    // 只有在非生产环境下才提供报错功能
     process.env.NODE_ENV !== 'production' &&
       assert(
         install.installed,
@@ -108,6 +111,7 @@ export default class VueRouter {
 
     // main app previously initialized
     // return as we don't need to set up new history listener
+    // 防止多次进行初始化
     if (this.app) {
       return
     }

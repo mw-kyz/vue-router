@@ -4,16 +4,17 @@ import Regexp from 'path-to-regexp'
 import { cleanPath } from './util/path'
 import { assert, warn } from './util/warn'
 
+// 创建路由映射表
 export function createRouteMap (
-  routes: Array<RouteConfig>,
+  routes: Array<RouteConfig>, // 路由配置
   oldPathList?: Array<string>,
   oldPathMap?: Dictionary<RouteRecord>,
   oldNameMap?: Dictionary<RouteRecord>,
   parentRoute?: RouteRecord
 ): {
-  pathList: Array<string>,
-  pathMap: Dictionary<RouteRecord>,
-  nameMap: Dictionary<RouteRecord>
+  pathList: Array<string>,  // 路径列表
+  pathMap: Dictionary<RouteRecord>, // 路径映射表
+  nameMap: Dictionary<RouteRecord> // 名字映射表
 } {
   // the path list is used to control path matching priority
   const pathList: Array<string> = oldPathList || []
@@ -27,6 +28,7 @@ export function createRouteMap (
   })
 
   // ensure wildcard routes are always at the end
+  // 确保通配符路径总是在路径列表最后面
   for (let i = 0, l = pathList.length; i < l; i++) {
     if (pathList[i] === '*') {
       pathList.push(pathList.splice(i, 1)[0])
@@ -54,6 +56,7 @@ export function createRouteMap (
   }
 }
 
+// 添加路由记录
 function addRouteRecord (
   pathList: Array<string>,
   pathMap: Dictionary<RouteRecord>,
@@ -62,9 +65,12 @@ function addRouteRecord (
   parent?: RouteRecord,
   matchAs?: string
 ) {
+  // 匹配出path和name值
   const { path, name } = route
   if (process.env.NODE_ENV !== 'production') {
+    // path字段不能为空
     assert(path != null, `"path" is required in a route configuration.`)
+    // component字段不能为字符串
     assert(
       typeof route.component !== 'string',
       `route config "component" for path: ${String(
@@ -83,6 +89,7 @@ function addRouteRecord (
 
   const pathToRegexpOptions: PathToRegexpOptions =
     route.pathToRegexpOptions || {}
+  // 路径标准化处理，包括嵌套路由的拼接
   const normalizedPath = normalizePath(path, parent, pathToRegexpOptions.strict)
 
   if (typeof route.caseSensitive === 'boolean') {
@@ -113,7 +120,7 @@ function addRouteRecord (
           ? route.props
           : { default: route.props }
   }
-
+  // 是否存在子路由
   if (route.children) {
     // Warn if route is named, does not redirect and has a default child route.
     // If users navigate to this route by name, the default child will
@@ -140,10 +147,11 @@ function addRouteRecord (
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
         : undefined
+      // 递归处理子路由
       addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs)
     })
   }
-
+  // 不存在，则添加该路径及路径记录
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
@@ -207,7 +215,7 @@ function compileRouteRegex (
   }
   return regex
 }
-
+// 路径标准化处理，包括嵌套路由的拼接
 function normalizePath (
   path: string,
   parent?: RouteRecord,

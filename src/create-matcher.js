@@ -16,10 +16,12 @@ export type Matcher = {
   getRoutes: () => Array<RouteRecord>;
 };
 
+// 创建路由匹配器
 export function createMatcher (
-  routes: Array<RouteConfig>,
-  router: VueRouter
+  routes: Array<RouteConfig>, // 路由配置
+  router: VueRouter // VueRouter实例
 ): Matcher {
+  // 创建路由映射表
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
 
   function addRoutes (routes) {

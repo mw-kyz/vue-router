@@ -77,7 +77,7 @@ export class History {
   onError (errorCb: Function) {
     this.errorCbs.push(errorCb)
   }
-
+  // 地址的切换
   transitionTo (
     location: RawLocation,
     onComplete?: Function,
